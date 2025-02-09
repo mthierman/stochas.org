@@ -1,0 +1,162 @@
+---
+import { ClientRouter } from "astro:transitions";
+import "../styles/index.css";
+
+interface Props {
+    title: string;
+}
+
+const { title } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="author" content="Surge Synth Team" />
+        <meta
+            name="description"
+            content="Open-source advanced probabilistic polyrhythmic sequencer plugin"
+        />
+        <meta property="og:url" content={Astro.url.href} />
+        <meta property="og:title" content={title} />
+        <meta
+            property="og:description"
+            content="Open-source advanced probabilistic polyrhythmic sequencer plugin"
+        />
+        <!-- <meta property="og:image" content="https://stochas.org/images/og_image.png" /> -->
+        <!-- <meta
+            property="og:image:secure_url"
+            content="https://stochas.org/images/og_image.png"
+        /> -->
+        <!-- <meta property="og:image:type" content="image/png" /> -->
+        <!-- <meta property="og:image:width" content="1200" /> -->
+        <!-- <meta property="og:image:height" content="600" /> -->
+        <!-- <meta property="ig:image:alt" content="Stochas" /> -->
+        <meta property="og:type" content="website" />
+        <link rel="icon" href="/favicon.ico" />
+        <link
+            rel="preload"
+            href="/fonts/InterVariable.woff2"
+            as="font"
+            type="font/woff2"
+            crossorigin
+        />
+        <link
+            rel="preload"
+            href="/fonts/InterVariable-Italic.woff2"
+            as="font"
+            type="font/woff2"
+            crossorigin
+        />
+        <title>{title}</title>
+        <script is:inline>
+            function setTheme() {
+                !localStorage.getItem("theme") && localStorage.setItem("theme", "auto");
+
+                switch (localStorage.getItem("theme")) {
+                    case "auto":
+                        window.matchMedia("(prefers-color-scheme: dark)").matches
+                            ? document.documentElement.setAttribute("data-theme", "dark")
+                            : document.documentElement.setAttribute("data-theme", "light");
+                        break;
+
+                    case "dark":
+                        document.documentElement.setAttribute("data-theme", "dark");
+                        break;
+
+                    case "light":
+                        document.documentElement.setAttribute("data-theme", "light");
+                        break;
+                }
+            }
+
+            function setThemeSelection() {
+                document.getElementById("theme-select").value = localStorage.getItem("theme");
+            }
+
+            setTheme();
+
+            document.addEventListener("readystatechange", (event) => {
+                if (event.target.readyState === "interactive") {
+                    setThemeSelection();
+                }
+            });
+
+            document.addEventListener("astro:after-swap", () => {
+                setTheme();
+                setThemeSelection();
+            });
+        </script>
+        <ClientRouter />
+    </head>
+
+    <body class="bg-white">
+        <div class="grid">
+            <nav
+                class="bg-bg-2-light/95 dark:bg-bg-2/95 sticky top-0 grid grid-flow-col place-content-center items-center gap-4 p-2 leading-none font-semibold text-nowrap shadow-xl backdrop-blur-lg select-none">
+                {
+                    [
+                        ["GitHub", "https://github.com/surge-synthesizer/stochas"],
+                        ["Download", "/download"],
+                        ["Documentation", "/documentation"],
+                        ["Contact", "/contact"],
+                        ["Surge Synth Team", "https://surge-synth-team.org/"],
+                    ].map(([title, href]) => (
+                        <a href={href} class="link">
+                            {title}
+                        </a>
+                    ))
+                }
+                <!-- <a href="https://surge-synth-team.org/" class="link">
+                    <img src="/images/sst-logo.svg" />
+                </a> -->
+                <div class="text-xs text-neutral-600 dark:text-neutral-300">
+                    <select
+                        aria-label="Theme"
+                        name="themes"
+                        id="theme-select"
+                        class="bg-bg-1-light dark:bg-bg-1">
+                        <option value="auto">System</option>
+                        <option value="dark">Dark</option>
+                        <option value="light">Light</option>
+                    </select>
+                </div>
+            </nav>
+
+            <div class="mx-auto max-w-4xl p-4">
+                <slot />
+            </div>
+        </div>
+    </body>
+</html>
+
+<script>
+    function themeObserver() {
+        const themeSelect = document.getElementById("theme-select") as HTMLSelectElement;
+
+        themeSelect.addEventListener("change", () => {
+            localStorage.setItem("theme", themeSelect.value);
+
+            switch (themeSelect.value) {
+                case "auto":
+                    window.matchMedia("(prefers-color-scheme: dark)").matches
+                        ? document.documentElement.setAttribute("data-theme", "dark")
+                        : document.documentElement.setAttribute("data-theme", "light");
+                    break;
+
+                case "dark":
+                    document.documentElement.setAttribute("data-theme", "dark");
+                    break;
+
+                case "light":
+                    document.documentElement.setAttribute("data-theme", "light");
+                    break;
+            }
+        });
+    }
+
+    document.addEventListener("astro:after-swap", themeObserver);
+    themeObserver();
+</script>
